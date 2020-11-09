@@ -21,12 +21,10 @@ variable "ami_name" {
 
 variable "mms_rpm" {
   description = "Ops Manager RPM name"
-  default     = "mongodb-mms-4.4.5.103.20201104T1729Z-1.x86_64.rpm"
 }
 
 variable "agent_rpm" {
   description = "Ops Manager Agent RPM name"
-  default     = "mongodb-mms-automation-agent-manager-10.14.16.6437-1.x86_64.rhel7.rpm"
 }
 
 variable "node_instance_type" {

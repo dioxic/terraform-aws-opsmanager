@@ -62,10 +62,5 @@ runcmd:
   - [ curl, -L, "${ca_cert_url}", -o, /etc/mongodb/ca.crt ]
   - [ cp, /etc/mongodb/ca.crt, /etc/pki/ca-trust/source/anchors ]
   - [ update-ca-trust ]
-  - [ curl, -OL, "${agent_url}"]
-  - [ rpm, -U, "${agent_filename}"]
-  - [ chown, "mongod:mongod", /data ]
-  - [ chown, "mongod:mongod", -R, /etc/mongodb]
-  - [ sed, -ir, "s|^mmsBaseUrl=.*|mmsBaseUrl=${mms_base_url}|", /etc/mongodb-mms/automation-agent.config]
 
 final_message: "Cloud Init complete!"

@@ -25,3 +25,7 @@ output "webapp_zone_dns" {
 output "node_zone_dns" {
   value = module.nodes.zone_dns
 }
+
+output "agent_rpm" {
+  value = var.agent_rpm
+}

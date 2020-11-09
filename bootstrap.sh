@@ -1,34 +1,44 @@
 #!/usr/bin/env bash
 
-#usage: <sslKeyFile> <mmsBaseUrl> <mmsGroupId> <mmsApiKey>
-configure_agents() {
-  if [ "$#" -ne 4 ]; then
-    configure_agents_help
+#usage: <sslKeyFile> <mmsGroupId> <mmsApiKey>
+install_agents() {
+  if [ "$#" -ne 3 ]; then
+    agents_help
   fi
 
+  local mmsGroupId=$2
+  local mmsApiKey=$3
+  local agentRpmFilename=`terraform output -json agent_rpm | jq -r '.'`
   local nodes=`terraform output -json node_public_ip | jq -r '.[]'`
+  local mmsBaseUrl=`terraform output -json mms_url | jq -r '.'`
+
   for HOST in $nodes
   do
-    echo "configuring agent on $HOST"
+    echo "insalling agent on $HOST"
+
     ssh -i $1 -o StrictHostKeyChecking=no ec2-user@$HOST <<- EOF
-      sudo sed -ir "s|^mmsBaseUrl=.*|mmsBaseUrl=$2|" /etc/mongodb-mms/automation-agent.config
-      sudo sed -ir "s|^mmsGroupId=.*|mmsGroupId=$3|" /etc/mongodb-mms/automation-agent.config
-      sudo sed -ir "s|^mmsApiKey=.*|mmsApiKey=$4|" /etc/mongodb-mms/automation-agent.config
+      curl -OL $mmsBaseUrl/download/agent/automation/$agentRpmFilename
+      sudo rpm -U $agentRpmFilename
+      sudo sed -ir "s|^mmsBaseUrl=.*|mmsBaseUrl=$mmsBaseUrl|" /etc/mongodb-mms/automation-agent.config
+      sudo sed -ir "s|^mmsApiKey=.*|mmsApiKey=$mmsApiKey|" /etc/mongodb-mms/automation-agent.config
+      sudo sed -ir "s|^mmsGroupId=.*|mmsGroupId=$mmsGroupId|" /etc/mongodb-mms/automation-agent.config
+      sudo chown mongod:mongod /data
+      sudo chown mongod:mongod -R /etc/mongodb
       sudo systemctl restart mongodb-mms-automation-agent.service
 EOF
   done
 }
 
+
 # -------------------------------------------------------------------------------------------------------------------------------------
 #                                                    CLI
 # -------------------------------------------------------------------------------------------------------------------------------------
 
-
-configure_agents_help() {
+agents_help() {
   cli_name=${0##*/}
   echo "
 MongoDB bootstrap CLI
-Usage: $cli_name configure_agents <sslKeyFile> <mmsBaseUrl> <mmsGroupId> <mmsApiKey>
+Usage: $cli_name agents <sslKeyFile> <mmsGroupId> <mmsApiKey>
 "
   exit 1
 }
@@ -39,27 +49,17 @@ cli_help() {
 MongoDB bootstrap CLI
 Usage: $cli_name [command]
 Commands:
-  wait        Wait
-  initiate    Initiate replica set
-  add_shard   Add shard to cluster
-  null        Do nothing
-  *           Help
+  agents     Install Ops Manager agents on nodes
+  null       Do nothing
+  *          Help
 "
   exit 1
 }
 
 case "$1" in
-  configure_agents)
+  agents)
     shift
-    configure_agents $@
-    ;;
-  initiate)
-    shift
-    initiate_replica_set $@
-    ;;
-  add_shard)
-    shift
-    add_shard $@
+    install_agents $@
     ;;
   null)
     exit 0

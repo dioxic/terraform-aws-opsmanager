@@ -24,9 +24,6 @@ data "template_cloudinit_config" "config" {
       server_cert_url     = "https://${aws_s3_bucket_object.server_cert[each.key].bucket}.s3.amazonaws.com/${aws_s3_bucket_object.server_cert[each.key].key}"
       client_cert_url     = "https://${aws_s3_bucket_object.client_cert[each.key].bucket}.s3.amazonaws.com/${aws_s3_bucket_object.client_cert[each.key].key}"
       ca_cert_url         = "https://${aws_s3_bucket_object.ca_cert.bucket}.s3.amazonaws.com/${aws_s3_bucket_object.ca_cert.key}"
-      agent_url           = var.agent_url
-      agent_filename      = basename(var.agent_url)
-      mms_base_url        = var.mms_base_url
       fqdn                = each.value["fqdn"]
       authorized_key      = trimspace(var.ssh_authorized_key)
       readahead_service   = base64encode(templatefile("${path.module}/templates/readahead.service", {

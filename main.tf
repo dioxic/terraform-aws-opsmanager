@@ -52,8 +52,6 @@ locals {
 
   ca_cert_pem        = file("${path.module}/certs/ca.crt")
   ca_private_key_pem = file("${path.module}/certs/ca.key")
-
-  agent_url = "${module.webapp.mms_url}/download/agent/automation/${var.agent_rpm}"
 }
 
 resource "mongodbatlas_project_ip_access_list" "webapp" {
@@ -129,9 +127,7 @@ module "nodes" {
   instance_type           = var.node_instance_type
   data_block_device_size  = var.node_data_block_device_size
   aws_key_name            = var.aws_key_name
-  agent_url               = local.agent_url
   s3_config_bucket        = var.s3_config_bucket
-  mms_base_url            = module.webapp.mms_url
 
   ca_cert_pem             = local.ca_cert_pem
   ca_private_key_pem      = local.ca_private_key_pem
