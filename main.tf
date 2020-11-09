@@ -63,6 +63,11 @@ locals {
     urlencode(module.appdb.admin_user_name), ":", urlencode(module.appdb.admin_user_password),
     "@", local.appdb_mongo_uri_content
   ])
+
+  ca_cert_pem        = file("${path.module}/certs/ca.crt")
+  ca_private_key_pem = file("${path.module}/certs/ca.key")
+
+  agent_url = "${module.webapp.mms_url}/download/agent/automation/${var.agent_rpm}"
 }
 
 resource "mongodbatlas_project_ip_access_list" "webapp" {
@@ -99,9 +104,10 @@ module "webapp" {
   data_block_device_size  = var.webapp_data_block_device_size
   aws_key_name            = var.aws_key_name
   appdb_mongo_uri         = local.appdb_mongo_uri_with_password
+  mms_rpm                 = var.mms_rpm
 
-  ca_cert_pem             = file("${path.module}/certs/ca.crt")
-  ca_private_key_pem      = file("${path.module}/certs/ca.key")
+  ca_cert_pem             = local.ca_cert_pem
+  ca_private_key_pem      = local.ca_private_key_pem
   enable_https            = true
   create_nlb              = false
 
@@ -123,12 +129,14 @@ module "nodes" {
   instance_type           = var.node_instance_type
   data_block_device_size  = var.node_data_block_device_size
   aws_key_name            = var.aws_key_name
+  agent_url               = local.agent_url
 
-  ca_cert_pem             = file("${path.module}/certs/ca.crt")
-  ca_private_key_pem      = file("${path.module}/certs/ca.key")
+  ca_cert_pem             = local.ca_cert_pem
+  ca_private_key_pem      = local.ca_private_key_pem
 
   zone_id                 = data.aws_route53_zone.mdbtraining.zone_id
   zone_name               = data.aws_route53_zone.mdbtraining.name
+
 
   tags                    = var.tags
 }

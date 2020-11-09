@@ -48,6 +48,9 @@ variable "ca_private_key_pem" {}
 
 variable "ca_cert_pem" {}
 
+variable "agent_url" {
+  description = "Full URL to download agent binaries"
+}
 
 variable "data_block_device_name" {
   description = "Block device name for data volume, default \"xvdb\""

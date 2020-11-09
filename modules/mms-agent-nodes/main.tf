@@ -21,15 +21,24 @@ data "template_cloudinit_config" "config" {
       mount_point         = var.data_block_device_mount_point
       mongodb_nproc       = base64encode(file("${path.module}/scripts/99-mongodb-nproc.conf"))
       disable_thp_service = base64encode(file("${path.module}/scripts/disable-thp.service"))
-      server_cert_pem     = base64encode(module.server_cert[each.key].cert_pem)
-      #client_cert_pem     = base64encode(join("",[tls_locally_signed_cert.client[each.key].cert_pem, tls_private_key.client[each.key].private_key_pem]))
-      ca_cert_pem         = base64encode(var.ca_cert_pem)
+      server_cert_url     = "https://${aws_s3_bucket_object.server_cert[each.key].bucket}.s3.amazonaws.com/${aws_s3_bucket_object.server_cert[each.key].key}"
+      client_cert_url     = "https://${aws_s3_bucket_object.client_cert[each.key].bucket}.s3.amazonaws.com/${aws_s3_bucket_object.client_cert[each.key].key}"
+      ca_cert_url         = "https://${aws_s3_bucket_object.ca_cert.bucket}.s3.amazonaws.com/${aws_s3_bucket_object.ca_cert.key}"
+      agent_url           = var.agent_url
+      agent_filename      = basename(var.agent_url)
       fqdn                = each.value["fqdn"]
       readahead_service   = base64encode(templatefile("${path.module}/templates/readahead.service", {
         data_block_device  = var.data_block_device_name
       }))
     })
   }
+}
+
+resource "aws_s3_bucket_object" "ca_cert" {
+  bucket = "markbm-config"
+  key    = "ca.pem"
+  acl    = "public-read"
+  content = var.ca_cert_pem
 }
 
 resource "aws_s3_bucket_object" "client_cert" {
@@ -39,7 +48,6 @@ resource "aws_s3_bucket_object" "client_cert" {
   key    = "client-${each.value.common_name}.pem"
   acl    = "public-read"
   content = each.value.cert_pem
-
 }
 
 resource "aws_s3_bucket_object" "server_cert" {
@@ -49,7 +57,6 @@ resource "aws_s3_bucket_object" "server_cert" {
   key    = "server-${each.value.common_name}.pem"
   acl    = "public-read"
   content = each.value.cert_pem
-
 }
 
 resource "aws_security_group" "main" {
@@ -108,7 +115,8 @@ module "server_cert" {
   allowed_uses        = [
     "key_encipherment",
     "digital_signature",
-    "server_auth"
+    "server_auth",
+    "client_auth"
   ]
 }
 

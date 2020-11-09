@@ -1,18 +1,14 @@
 variable "aws_key_name" {
   description = "AWS SSH key name"
-  default     = "markbm"
 }
 
 variable "tags" {
   description = "Optional map of tags to set on resources, defaults to empty map."
   type        = map(string)
-  default     = {
-	  owner = "mark.baker-munton"
-  }
+  default     = {}
 }
 
 variable "name" {
-  default = "markbm"
 }
 
 variable "ami_owner" {
@@ -21,6 +17,16 @@ variable "ami_owner" {
 
 variable "ami_name" {
   default = "amzn2-ami-hvm-*-x86_64-gp2"
+}
+
+variable "mms_rpm" {
+  description = "Ops Manager RPM name"
+  default     = "mongodb-mms-4.4.5.103.20201104T1729Z-1.x86_64.rpm"
+}
+
+variable "agent_rpm" {
+  description = "Ops Manager Agent RPM name"
+  default     = "mongodb-mms-automation-agent-manager-10.14.16.6437-1.x86_64.rhel7.rpm"
 }
 
 variable "node_instance_type" {

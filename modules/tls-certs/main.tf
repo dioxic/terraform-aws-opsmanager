@@ -12,7 +12,6 @@ resource "tls_cert_request" "main" {
     common_name  = var.dns_names[0]
     organizational_unit = var.organizational_unit
     organization = var.organization
-
   }
 }
 

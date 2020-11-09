@@ -4,11 +4,11 @@ variable "aws_key_name" {
   default     = null
 }
 
-variable "public_key_openssh" {
-  description = "Public key to use for EC2 instances"
-  type        = string
-  default     = null
-}
+//variable "public_key_openssh" {
+//  description = "Public key to use for EC2 instances"
+//  type        = string
+//  default     = null
+//}
 
 variable "tags" {
   description = "Optional map of tags to set on resources, defaults to empty map."
@@ -50,6 +50,11 @@ variable "instance_type" {
 variable "mms_rpm" {
   description = "Ops Manager RPM name"
   default     = "mongodb-mms-4.4.5.103.20201104T1729Z-1.x86_64.rpm"
+}
+
+variable "agent_rpm" {
+  description = "Ops Manager Agent RPM name"
+  default     = "mongodb-mms-automation-agent-manager-10.14.16.6437-1.x86_64.rhel7.rpm"
 }
 
 variable "mms_repo" {

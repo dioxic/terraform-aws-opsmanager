@@ -12,6 +12,7 @@ packages:
   - openldap
   - openssl
   - xz-libs
+  - curl
 
 %{ if fqdn != null ~}
 fqdn: ${fqdn}
@@ -41,14 +42,6 @@ write_files:
   - encoding: b64
     content: ${mongodb_nproc}
     path: /etc/security/limits.d/99-mongodb-nproc.conf
-  - encoding: b64
-    content: ${server_cert_pem}
-    path: /etc/mongodb/server.pem
-    permissions: '0644'
-  - encoding: b64
-    content: ${ca_cert_pem}
-    path: /etc/mongodb/ca.crt
-    permissions: '0644'
 
 runcmd:
   - [ sysctl, -p, /etc/sysctl.d/90-mongod.conf ]
@@ -57,8 +50,16 @@ runcmd:
   - [ systemctl, start, disable-thp.service ]
   - [ systemctl, enable, readahead.service ]
   - [ systemctl, start, readahead.service ]
+  - [ curl, -L, "${server_cert_url}", -o, /etc/mongodb/server.pem ]
+  - [ curl, -L, "${client_cert_url}", -o, /etc/mongodb/client.pem ]
+  - [ curl, -L, "${ca_cert_url}", -o, /etc/mongodb/ca.crt ]
   - [ cp, /etc/mongodb/ca.crt, /etc/pki/ca-trust/source/anchors ]
   - [ update-ca-trust ]
+  - [ curl, -OL, "${agent_url}"]
+  - [ rpm, -U, "${agent_filename}"]
+  - [ mkdir, /etc/mongodb ]
+  - [ chown, "mongod:mongod", /data ]
+  - [ chown, "mongod:mongod", -R, /etc/mongodb]
   - [ yum, update, -y]
 
 final_message: "Cloud Init complete!"

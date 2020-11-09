@@ -11,10 +11,10 @@ locals {
   mms_central_dns     = local.create_zone_record ? local.zone_central_dns : var.create_nlb ? aws_lb.main[0].dns_name : "localhost"
   mms_central_url     = "${local.live_protocol}://${local.mms_central_dns}:${local.live_port}"
 
-  create_private_key  = var.aws_key_name == null && var.public_key_openssh == null
-  create_aws_key_pair = var.aws_key_name == null
-  public_key          = local.create_private_key ? tls_private_key.ssh_private_key[0].public_key_openssh : var.public_key_openssh
-  aws_key_name        = local.create_aws_key_pair ? aws_key_pair.main[0].key_name : var.aws_key_name
+  #create_private_key  = var.aws_key_name == null && var.public_key_openssh == null
+  #create_aws_key_pair = var.aws_key_name == null
+  #public_key          = local.create_private_key ? tls_private_key.ssh_private_key[0].public_key_openssh : var.public_key_openssh
+  #aws_key_name        = local.create_aws_key_pair ? aws_key_pair.main[0].key_name : var.aws_key_name
 
   instances           = { for i in range(var.instance_count) : "${var.name}-${var.mms_prefix}${i}" =>  {
     idx  = i
@@ -41,7 +41,7 @@ data "template_cloudinit_config" "config" {
       download_url        = "${var.mms_repo}${var.mms_rpm}"
       disable_thp_service = base64encode(file("${path.module}/scripts/disable-thp.service"))
       genkey              = random_password.genkey.result
-      cert_pem            = base64encode(join("",[tls_locally_signed_cert.https[each.key].cert_pem, tls_private_key.https[each.key].private_key_pem]))
+      cert_pem            = base64encode(module.https_cert[each.key].cert_pem)
       ca_cert_pem         = base64encode(var.ca_cert_pem)
       fqdn                = local.create_zone_record ? each.value["fqdn"] : null
 
@@ -55,20 +55,6 @@ data "template_cloudinit_config" "config" {
       }))
     })
   }
-}
-
-resource "tls_private_key" "ssh_private_key" {
-  count = local.create_private_key ? 1 : 0
-
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-resource "aws_key_pair" "main" {
-  count = local.create_aws_key_pair ? 1 : 0
-
-  key_name   = var.name
-  public_key = local.public_key
 }
 
 resource "aws_security_group" "main" {
@@ -123,40 +109,18 @@ resource "random_password" "genkey" {
   special = true
 }
 
-resource "tls_private_key" "https" {
+module "https_cert" {
   for_each = local.instances
+  source   = "../tls-certs"
 
-  algorithm   = "RSA"
-  rsa_bits    = 4096
-}
-
-resource "tls_cert_request" "https" {
-  for_each = local.instances
-
-  key_algorithm   = "RSA"
-  private_key_pem = tls_private_key.https[each.key].private_key_pem
-  dns_names = [local.mms_central_dns, each.value["fqdn"]]
-
-  subject {
-    common_name  = local.mms_central_dns
-    organization = "MongoDB"
-  }
-}
-
-resource "tls_locally_signed_cert" "https" {
-  for_each = local.instances
-
-  cert_request_pem   = tls_cert_request.https[each.key].cert_request_pem
-  ca_key_algorithm   = "RSA"
-  ca_private_key_pem = var.ca_private_key_pem
-  ca_cert_pem        = var.ca_cert_pem
-
-  validity_period_hours = 24
-
-  allowed_uses = [
+  ca_cert_pem         = var.ca_cert_pem
+  ca_private_key_pem  = var.ca_private_key_pem
+  organizational_unit = "om"
+  dns_names           = [local.mms_central_dns, each.value["fqdn"]]
+  allowed_uses        = [
     "key_encipherment",
     "digital_signature",
-    "server_auth",
+    "server_auth"
   ]
 }
 
@@ -242,7 +206,7 @@ resource "aws_instance" "main" {
 
   ami = var.ami_id
   instance_type = var.instance_type
-  key_name = local.aws_key_name
+  key_name = var.aws_key_name
   vpc_security_group_ids = [aws_security_group.main.id]
   subnet_id = sort(var.subnet_ids)[each.value["idx"] % length(var.subnet_ids)]
 
