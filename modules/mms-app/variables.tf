@@ -73,9 +73,15 @@ variable "enable_https" {
   default = true
 }
 
-variable "zone_id" {}
+variable "zone_id" {
+  type    = string
+  default = null
+}
 
-variable "zone_name" {}
+variable "zone_name" {
+  type    = string
+  default = null
+}
 
 variable "ca_private_key_pem" {}
 

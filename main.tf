@@ -116,6 +116,7 @@ module "nodes" {
   data_block_device_size  = var.node_data_block_device_size
   aws_key_name            = var.aws_key_name
   agent_url               = local.agent_url
+  s3_config_bucket        = var.s3_config_bucket
 
   ca_cert_pem             = local.ca_cert_pem
   ca_private_key_pem      = local.ca_private_key_pem

@@ -116,6 +116,7 @@ module "https_cert" {
   ca_cert_pem         = var.ca_cert_pem
   ca_private_key_pem  = var.ca_private_key_pem
   organizational_unit = "om"
+  common_name         = each.value["fqdn"]
   dns_names           = [local.mms_central_dns, each.value["fqdn"]]
   allowed_uses        = [
     "key_encipherment",

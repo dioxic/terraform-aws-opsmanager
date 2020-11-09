@@ -9,9 +9,9 @@ resource "tls_cert_request" "main" {
   dns_names = var.dns_names
 
   subject {
-    common_name  = var.dns_names[0]
+    common_name         = var.common_name
     organizational_unit = var.organizational_unit
-    organization = var.organization
+    organization        = var.organization
   }
 }
 

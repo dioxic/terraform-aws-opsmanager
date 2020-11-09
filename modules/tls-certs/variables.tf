@@ -1,16 +1,14 @@
 variable "dns_names" {
   type = list(string)
   description = "list of DNS names"
-
-  validation {
-    condition     = length(var.dns_names) > 0
-    error_message = "The dns_names value must have at least one entry."
-  }
+  default = []
 }
 
 variable "ca_private_key_pem" {}
 
 variable "ca_cert_pem" {}
+
+variable "common_name" {}
 
 variable "organizational_unit" {
   default = "PS"

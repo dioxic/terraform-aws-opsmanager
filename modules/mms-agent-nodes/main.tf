@@ -35,28 +35,28 @@ data "template_cloudinit_config" "config" {
 }
 
 resource "aws_s3_bucket_object" "ca_cert" {
-  bucket = "markbm-config"
+  bucket = var.s3_config_bucket
   key    = "ca.pem"
   acl    = "public-read"
   content = var.ca_cert_pem
 }
 
 resource "aws_s3_bucket_object" "client_cert" {
-  for_each = module.client_cert
+  for_each = local.instances
 
-  bucket = "markbm-config"
-  key    = "client-${each.value.common_name}.pem"
+  bucket = var.s3_config_bucket
+  key    = "${each.value["fqdn"]}-client.pem"
   acl    = "public-read"
-  content = each.value.cert_pem
+  content = module.client_cert[each.key].cert_pem
 }
 
 resource "aws_s3_bucket_object" "server_cert" {
-  for_each = module.server_cert
+  for_each = local.instances
 
-  bucket = "markbm-config"
-  key    = "server-${each.value.common_name}.pem"
+  bucket = var.s3_config_bucket
+  key    = "${each.value["fqdn"]}-server.pem"
   acl    = "public-read"
-  content = each.value.cert_pem
+  content = module.server_cert[each.key].cert_pem
 }
 
 resource "aws_security_group" "main" {
@@ -111,6 +111,7 @@ module "server_cert" {
   ca_cert_pem         = var.ca_cert_pem
   ca_private_key_pem  = var.ca_private_key_pem
   organizational_unit = "cluster"
+  common_name         = each.value["fqdn"]
   dns_names           = [each.value["fqdn"]]
   allowed_uses        = [
     "key_encipherment",
@@ -126,8 +127,8 @@ module "client_cert" {
 
   ca_cert_pem         = var.ca_cert_pem
   ca_private_key_pem  = var.ca_private_key_pem
-  organizational_unit = "agent"
-  dns_names           = [each.value["fqdn"]]
+  organizational_unit = "mms"
+  common_name         = "automation-agent"
   allowed_uses        = [
     "key_encipherment",
     "digital_signature",

@@ -17,7 +17,3 @@ output "lb_dns" {
 output "zone_dns" {
   value = values(aws_route53_record.instance)[*].fqdn
 }
-
-output "zone_central_dns" {
-  value = concat(aws_route53_record.instance_group[*].fqdn, aws_route53_record.lb[*].fqdn)
-}

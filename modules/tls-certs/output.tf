@@ -7,7 +7,7 @@ output "dns_names" {
 }
 
 output "common_name" {
-  value = var.dns_names[0]
+  value = var.common_name
 }
 
 output "organization" {

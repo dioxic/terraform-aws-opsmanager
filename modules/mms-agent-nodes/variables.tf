@@ -48,6 +48,8 @@ variable "ca_private_key_pem" {}
 
 variable "ca_cert_pem" {}
 
+variable "s3_config_bucket" {}
+
 variable "agent_url" {
   description = "Full URL to download agent binaries"
 }

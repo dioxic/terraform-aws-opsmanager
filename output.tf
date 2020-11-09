@@ -18,14 +18,10 @@ output "mms_url" {
   value = module.webapp.mms_url
 }
 
-output "zone_webapp_dns" {
+output "webapp_zone_dns" {
   value = module.webapp.zone_dns
 }
 
-output "zone_node_dns" {
+output "node_zone_dns" {
   value = module.nodes.zone_dns
-}
-
-output "zone_central_dns" {
-  value = module.webapp.zone_central_dns
 }

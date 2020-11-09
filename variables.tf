@@ -64,6 +64,10 @@ variable "mongo_shell_version" {
   default     = "4.4"
 }
 
+variable "s3_config_bucket" {
+
+}
+
 variable "zone_id" {}
 
 variable "zone_name" {}
