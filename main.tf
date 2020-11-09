@@ -41,21 +41,7 @@ data "aws_subnet_ids" "default" {
   }
 }
 
-data "aws_route53_zone" "mdbtraining" {
-  name         = "mdbtraining.net."
-  private_zone = false
-}
-
-//data "http" "my_public_ip" {
-//  url = "https://api.ipify.org?format=json"
-//  request_headers = {
-//    Accept = "application/json"
-//  }
-//}
-
 locals {
-//  ifconfig = jsondecode(data.http.my_public_ip.body)
-
   appdb_mongo_uri_type          = split("://", module.appdb.srv_address)[0]
   appdb_mongo_uri_content       = split("://", module.appdb.srv_address)[1]
   appdb_mongo_uri_with_password = join("", [
@@ -111,8 +97,8 @@ module "webapp" {
   enable_https            = true
   create_nlb              = false
 
-  zone_id                 = data.aws_route53_zone.mdbtraining.zone_id
-  zone_name               = data.aws_route53_zone.mdbtraining.name
+  zone_id                 = var.zone_id
+  zone_name               = var.zone_name
 
   tags                    = var.tags
 
@@ -134,8 +120,8 @@ module "nodes" {
   ca_cert_pem             = local.ca_cert_pem
   ca_private_key_pem      = local.ca_private_key_pem
 
-  zone_id                 = data.aws_route53_zone.mdbtraining.zone_id
-  zone_name               = data.aws_route53_zone.mdbtraining.name
+  zone_id                 = var.zone_id
+  zone_name               = var.zone_name
 
 
   tags                    = var.tags

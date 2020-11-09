@@ -64,6 +64,10 @@ variable "mongo_shell_version" {
   default     = "4.4"
 }
 
+variable "zone_id" {}
+
+variable "zone_name" {}
+
 variable "atlas_private_key" {}
 
 variable "atlas_public_key" {}
