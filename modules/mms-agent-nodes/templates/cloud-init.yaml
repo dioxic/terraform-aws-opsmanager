@@ -60,6 +60,7 @@ runcmd:
   - [ rpm, -U, "${agent_filename}"]
   - [ chown, "mongod:mongod", /data ]
   - [ chown, "mongod:mongod", -R, /etc/mongodb]
+  - [ sed, -ir, "s|^mmsBaseUrl=.*|mmsBaseUrl=${mms_base_url}|", /etc/mongodb-mms/automation-agent.config]
   - [ yum, update, -y]
 
 final_message: "Cloud Init complete!"

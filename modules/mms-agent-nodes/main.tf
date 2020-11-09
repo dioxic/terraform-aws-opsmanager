@@ -26,6 +26,7 @@ data "template_cloudinit_config" "config" {
       ca_cert_url         = "https://${aws_s3_bucket_object.ca_cert.bucket}.s3.amazonaws.com/${aws_s3_bucket_object.ca_cert.key}"
       agent_url           = var.agent_url
       agent_filename      = basename(var.agent_url)
+      mms_base_url        = var.mms_base_url
       fqdn                = each.value["fqdn"]
       readahead_service   = base64encode(templatefile("${path.module}/templates/readahead.service", {
         data_block_device  = var.data_block_device_name

@@ -50,6 +50,11 @@ variable "ca_cert_pem" {}
 
 variable "s3_config_bucket" {}
 
+variable "mms_base_url" {
+  description = "Ops Manager URL (e.g. https://example.com)"
+  default     = ""
+}
+
 variable "agent_url" {
   description = "Full URL to download agent binaries"
 }
