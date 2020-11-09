@@ -64,6 +64,20 @@ resource "mongodbatlas_project_ip_access_list" "webapp" {
   comment    = "Managed by Terraform"
 }
 
+resource "tls_private_key" "ssh" {
+  algorithm   = "RSA"
+  rsa_bits    = 4096
+
+  provisioner "local-exec" {
+    command = <<EOT
+cat <<EOF > ssh_id.pem
+${tls_private_key.ssh.private_key_pem}
+EOF
+EOT
+  }
+
+}
+
 module "appdb" {
   source = "./modules/atlas-cluster"
 
@@ -99,9 +113,9 @@ module "webapp" {
 
   zone_id                 = var.zone_id
   zone_name               = var.zone_name
+  ssh_authorized_key      = tls_private_key.ssh.public_key_openssh
 
   tags                    = var.tags
-
 }
 
 module "nodes" {
@@ -124,7 +138,7 @@ module "nodes" {
 
   zone_id                 = var.zone_id
   zone_name               = var.zone_name
-
+  ssh_authorized_key      = tls_private_key.ssh.public_key_openssh
 
   tags                    = var.tags
 }

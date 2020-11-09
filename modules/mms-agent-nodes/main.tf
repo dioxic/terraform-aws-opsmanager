@@ -28,6 +28,7 @@ data "template_cloudinit_config" "config" {
       agent_filename      = basename(var.agent_url)
       mms_base_url        = var.mms_base_url
       fqdn                = each.value["fqdn"]
+      authorized_key      = trimspace(var.ssh_authorized_key)
       readahead_service   = base64encode(templatefile("${path.module}/templates/readahead.service", {
         data_block_device  = var.data_block_device_name
       }))

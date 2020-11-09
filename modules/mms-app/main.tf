@@ -44,6 +44,7 @@ data "template_cloudinit_config" "config" {
       cert_pem            = base64encode(module.https_cert[each.key].cert_pem)
       ca_cert_pem         = base64encode(var.ca_cert_pem)
       fqdn                = local.create_zone_record ? each.value["fqdn"] : null
+      authorized_key      = trimspace(var.ssh_authorized_key)
 
       readahead_service   = base64encode(templatefile("${path.module}/templates/readahead.service", {
         data_block_device  = var.data_block_device_name

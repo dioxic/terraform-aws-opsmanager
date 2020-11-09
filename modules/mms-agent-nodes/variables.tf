@@ -3,6 +3,12 @@ variable "aws_key_name" {
   type        = string
 }
 
+variable "ssh_authorized_key" {
+  description = "SSH authorized key (added to aws key pair)"
+  type        = string
+  default     = ""
+}
+
 variable "tags" {
   description = "Optional map of tags to set on resources, defaults to empty map."
   type        = map(string)

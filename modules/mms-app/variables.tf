@@ -4,11 +4,11 @@ variable "aws_key_name" {
   default     = null
 }
 
-//variable "public_key_openssh" {
-//  description = "Public key to use for EC2 instances"
-//  type        = string
-//  default     = null
-//}
+variable "ssh_authorized_key" {
+  description = "SSH authorized key (added to aws key pair)"
+  type        = string
+  default     = ""
+}
 
 variable "tags" {
   description = "Optional map of tags to set on resources, defaults to empty map."

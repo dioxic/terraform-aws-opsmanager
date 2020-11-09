@@ -18,6 +18,12 @@ fqdn: ${fqdn}
 preserve_hostname: false
 %{ endif ~}
 
+
+%{ if authorized_key != "" ~}
+ssh_authorized_keys:
+  - ${authorized_key}
+%{ endif ~}
+
 fs_setup:
   - label: mongodata
     filesystem: xfs
