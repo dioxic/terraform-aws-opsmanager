@@ -4,17 +4,11 @@ locals {
   create_zone_record  = var.zone_id != null && var.zone_name != null
   zone_central_dns    = "${var.mms_prefix}.${var.name}.${var.zone_name}"
 
-  //live_dns            = local.create_zone_record ? local.zone_dns : var.create_nlb ? aws_lb.main[0].dns_name : aws_instance.main.public_ip
-  live_protocol       = var.enable_https ? "https" : "http"
-  live_port           = var.create_nlb ? local.nlb_port : local.host_port
+  protocol       = var.enable_https ? "https" : "http"
+  port           = var.create_nlb ? local.nlb_port : local.host_port
 
   mms_central_dns     = local.create_zone_record ? local.zone_central_dns : var.create_nlb ? aws_lb.main[0].dns_name : "localhost"
-  mms_central_url     = "${local.live_protocol}://${local.mms_central_dns}:${local.live_port}"
-
-  #create_private_key  = var.aws_key_name == null && var.public_key_openssh == null
-  #create_aws_key_pair = var.aws_key_name == null
-  #public_key          = local.create_private_key ? tls_private_key.ssh_private_key[0].public_key_openssh : var.public_key_openssh
-  #aws_key_name        = local.create_aws_key_pair ? aws_key_pair.main[0].key_name : var.aws_key_name
+  mms_central_url     = "${local.protocol}://${local.mms_central_dns}:${local.port}"
 
   instances           = { for i in range(var.instance_count) : "${var.name}-${var.mms_prefix}${i}" =>  {
     idx  = i
